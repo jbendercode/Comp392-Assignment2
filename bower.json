@@ -1,0 +1,25 @@
+{
+  "name": "comp392-assignment2",
+  "authors": [
+    "Josh Bender <jbendercode@gmail.com>"
+  ],
+  "description": "COMP392-Assignment2 for Advanced Graphics",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "https://github.com/jbendercode/Comp392-Assignment2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "Scripts/lib"
+  ],
+  "dependencies": {
+    "three.js": "threejs#*",
+    "dat-gui": "~0.5.1",
+    "stats.js": "*",
+    "threex.colliders": "*"
+  }
+}
