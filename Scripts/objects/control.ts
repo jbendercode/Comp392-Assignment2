@@ -1,5 +1,10 @@
 /// <reference path="../../typings/tsd.d.ts"/>
 
+// Assingment 2 - Comp 392
+// Josh Bender
+// 300746563
+// Updated 25/02/2016
+
 module objects {
     // CONTROL CLASS ++++++++++++++++++++++++++++++++++++++++++
     export class Control { 

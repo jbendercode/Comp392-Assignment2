@@ -1,8 +1,8 @@
 /// <reference path="_reference.ts"/>
-// TO DO LIST
-// - Add self emitting light from sun
-// - Zoom in to other planet(s)
-// - Add background stars texture
+// Assingment 2 - Comp 392
+// Josh Bender
+// 300746563
+// Updated 25/02/2016
 // MAIN GAME FILE
 // THREEJS Aliases
 var Scene = THREE.Scene;
@@ -75,15 +75,19 @@ var game = (function () {
     var nyleaGeometry;
     var nyleaMaterial;
     var ambientLight;
-    var directionalLight;
+    var pointLight;
     var control;
     var gui;
     var stats;
     var step = 0;
     var lookingAt;
+    var cameras;
     function init() {
         setupRenderer(); // setup the default renderer
-        setupCamera(); // setup the camera
+        // setup the cameras
+        cameras = [];
+        setupCameras();
+        camera = cameras[0];
         // Add a sun to the Scene
         sunGeometry = new SphereGeometry(10, 64, 64);
         sunMaterial = new LambertMaterial({ map: ImageUtils.loadTexture('../../Assets/planet7.jpg') });
@@ -119,7 +123,7 @@ var game = (function () {
         console.log("Added Axis Helper to Scene...");
         // Add planet "Heliod" to the scene
         heliodGeometry = new SphereGeometry(0.6, 32, 32);
-        heliodMaterial = new LambertMaterial({ map: ImageUtils.loadTexture('../../Assets/planet1.jpg') });
+        heliodMaterial = new LambertMaterial({ color: 0x505050, map: ImageUtils.loadTexture('../../Assets/planet1.jpg') });
         heliod = new gameObject(heliodGeometry, heliodMaterial, -14, 0, 0);
         heliod.castShadow = true;
         heliod.receiveShadow = true;
@@ -128,7 +132,7 @@ var game = (function () {
         console.log("Added Heliod to the scene");
         // Add planet "Thassa" to the scene
         thassaGeometry = new SphereGeometry(1.3, 32, 32);
-        thassaMaterial = new LambertMaterial({ map: ImageUtils.loadTexture('../../Assets/planet3.jpg') });
+        thassaMaterial = new LambertMaterial({ color: 0x505050, map: ImageUtils.loadTexture('../../Assets/planet3.jpg') });
         thassa = new gameObject(thassaGeometry, thassaMaterial, -20, 0, 0);
         thassa.castShadow = true;
         thassa.receiveShadow = true;
@@ -142,7 +146,7 @@ var game = (function () {
         thassa.add(ringPivot);
         // Add "Thassa Rings" to the scene
         thassaRingsGeometry = new TorusGeometry(1.9, 0.35, 2, 100);
-        thassaRingsMaterial = new LambertMaterial({ transparent: true, opacity: 0.85, map: ImageUtils.loadTexture('../../Assets/planet5.jpg') });
+        thassaRingsMaterial = new LambertMaterial({ color: 0x505050, transparent: true, opacity: 0.85, map: ImageUtils.loadTexture('../../Assets/planet5.jpg') });
         thassaRings = new gameObject(thassaRingsGeometry, thassaRingsMaterial, 0, 0, 0);
         thassaRings.castShadow = false;
         thassaRings.receiveShadow = false;
@@ -151,7 +155,7 @@ var game = (function () {
         console.log("Added Thassa Rings to the scene");
         // Add planet "Erebos" to the scene
         erebosGeometry = new SphereGeometry(0.9, 32, 32);
-        erebosMaterial = new LambertMaterial({ map: ImageUtils.loadTexture('../../Assets/planet5.jpg') });
+        erebosMaterial = new LambertMaterial({ color: 0x505050, map: ImageUtils.loadTexture('../../Assets/planet5.jpg') });
         erebos = new gameObject(erebosGeometry, erebosMaterial, -26, 0, 0);
         erebos.castShadow = true;
         erebos.receiveShadow = true;
@@ -160,7 +164,7 @@ var game = (function () {
         console.log("Added Erebos to the scene");
         // Add planet "Purphoros" to the scene
         purphorosGeometry = new SphereGeometry(1.6, 32, 32);
-        purphorosMaterial = new LambertMaterial({ map: ImageUtils.loadTexture('../../Assets/planet4.jpg') });
+        purphorosMaterial = new LambertMaterial({ color: 0x505050, map: ImageUtils.loadTexture('../../Assets/planet4.jpg') });
         purphoros = new gameObject(purphorosGeometry, purphorosMaterial, -32, 0, 0);
         purphoros.castShadow = true;
         purphoros.receiveShadow = true;
@@ -173,7 +177,7 @@ var game = (function () {
         purphoros.add(moonPivot);
         // Add "Purphoros' moon 'Malleum'" to the scene
         malleumGeometry = new SphereGeometry(0.2, 32, 32);
-        malleumMaterial = new LambertMaterial({ map: ImageUtils.loadTexture('../../Assets/planet6.jpg') });
+        malleumMaterial = new LambertMaterial({ color: 0x505050, map: ImageUtils.loadTexture('../../Assets/planet6.jpg') });
         malleum = new gameObject(malleumGeometry, malleumMaterial, -2, 0, 0);
         malleum.castShadow = true;
         malleum.receiveShadow = true;
@@ -182,28 +186,28 @@ var game = (function () {
         console.log("Added Malleum, moon of Purphoros to the scene");
         // Add planet "Nylea" to the scene
         nyleaGeometry = new SphereGeometry(0.8, 32, 32);
-        nyleaMaterial = new LambertMaterial({ map: ImageUtils.loadTexture('../../Assets/planet2.jpg') });
+        nyleaMaterial = new LambertMaterial({ color: 0x505050, map: ImageUtils.loadTexture('../../Assets/planet2.jpg') });
         nylea = new gameObject(nyleaGeometry, nyleaMaterial, -38, 0, 0);
         nylea.castShadow = true;
         nylea.receiveShadow = true;
         nylea.name = "Nylea";
         nyleaPivot.add(nylea);
         console.log("Added Nylea to the scene");
+        // Add Planet Cams
+        heliod.add(cameras[1]);
+        thassa.add(cameras[2]);
+        erebos.add(cameras[3]);
+        purphoros.add(cameras[4]);
+        nylea.add(cameras[5]);
         // Add an AmbientLight to the scene
-        ambientLight = new AmbientLight(0xFFFFFF);
+        ambientLight = new AmbientLight(0xffffff);
         scene.add(ambientLight);
         console.log("Added an Ambient Light to Scene");
-        // Add a DirectionalLight to the scene
-        directionalLight = new DirectionalLight(0xffffff);
-        directionalLight.position.set(0, 0, 0);
-        directionalLight.rotation.set(0, 0, 0);
-        directionalLight.intensity = 10;
-        directionalLight.castShadow = true;
-        directionalLight.shadowCameraNear = 1;
-        directionalLight.shadowMapHeight = 2048;
-        directionalLight.shadowMapWidth = 2048;
-        scene.add(directionalLight);
-        console.log("Added a DirectionalLight to Scene");
+        // Add a Point Light to the sun
+        pointLight = new THREE.PointLight(0xffffff);
+        pointLight.intensity = 6;
+        pointLight.position.set(0, 0, 0);
+        sun.add(pointLight);
         // add controls
         gui = new GUI();
         control = new Control(0, 0.003, 0.003, 0.002, 0.0016, 0.0012, 0.0008, 0.0004, 'Sun');
@@ -229,17 +233,17 @@ var game = (function () {
     // Change what the camera is looking at
     function changeTarget() {
         if (control.changeTarget == 'Sun')
-            lookingAt = sun.position;
+            camera = cameras[0];
         else if (control.changeTarget == 'Heliod')
-            lookingAt = heliodPivot.position;
+            camera = cameras[1];
         else if (control.changeTarget == 'Thassa')
-            lookingAt = ringPivot.position;
+            camera = cameras[2];
         else if (control.changeTarget == 'Erebos')
-            lookingAt = erebos.position;
+            camera = cameras[3];
         else if (control.changeTarget == 'Purphoros')
-            lookingAt = purphoros.position;
+            camera = cameras[4];
         else if (control.changeTarget == 'Nylea')
-            lookingAt = nylea.position;
+            camera = cameras[5];
     }
     function addStatsObject() {
         stats = new Stats();
@@ -261,7 +265,7 @@ var game = (function () {
         changeTarget();
         // Zoom Control
         camera.position.y = 100.1 - control.zoom;
-        camera.position.z = 0.1 + (control.zoom * 0.6);
+        camera.position.z = 0.1 + (control.zoom * 0.4);
         camera.lookAt(lookingAt);
         // Plantary Swing
         heliodPivot.rotation.y += control.heliodSpeed;
@@ -313,10 +317,15 @@ var game = (function () {
         renderer.shadowMapType = THREE.PCFSoftShadowMap;
         console.log("Finished setting up Renderer...");
     }
-    // Setup main camera for the scene
-    function setupCamera() {
-        camera = new PerspectiveCamera(45, config.Screen.RATIO, 0.1, 1000);
+    // Setup cameras for the scene
+    function setupCameras() {
+        cameras[0] = new PerspectiveCamera(45, config.Screen.RATIO, 0.1, 1000);
         lookingAt = new Vector3(0, 0, 0);
+        cameras[1] = new PerspectiveCamera(45, config.Screen.RATIO, 0.1, 1000);
+        cameras[2] = new PerspectiveCamera(45, config.Screen.RATIO, 0.1, 1000);
+        cameras[3] = new PerspectiveCamera(45, config.Screen.RATIO, 0.1, 1000);
+        cameras[4] = new PerspectiveCamera(45, config.Screen.RATIO, 0.1, 1000);
+        cameras[5] = new PerspectiveCamera(45, config.Screen.RATIO, 0.1, 1000);
         console.log("Finished setting up Camera...");
     }
     window.onload = init;
